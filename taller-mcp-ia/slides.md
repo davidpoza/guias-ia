@@ -12,13 +12,13 @@ transition: slide-left
 mdc: true
 ---
 
-<div class="cover-kicker">TALLER PRÁCTICO · IA PARA EL TRABAJO REAL</div>
+<div class="cover-kicker">TALLER PRÁCTICO · MCP</div>
 
 # MCP en acción
 
-## De pedir ayuda a conectar herramientas
+## Algunos MCP útiles 
 
-**Diagramas editables · documentos a Markdown · pruebas visuales en MOISES**
+**Diagramas editables · documentos a Markdown · visión artificial con Chrome**
 
 <div class="cover-footer">Una sesión para entenderlo, configurarlo y probarlo</div>
 
@@ -33,7 +33,7 @@ Abre con la promesa: no es una charla sobre teoría de modelos. Vamos a conectar
 <div class="grid grid-cols-3 gap-5 mt-10">
   <div class="panel panel-cyan"><div class="number">01</div><h3>Dibujar</h3><p>Pasar de una descripción a un diagrama <strong>editable</strong> en draw.io.</p></div>
   <div class="panel panel-violet"><div class="number">02</div><h3>Leer</h3><p>Extraer DOCX y PDF a Markdown con el MCP local de <strong>2MD</strong>.</p></div>
-  <div class="panel panel-lime"><div class="number">03</div><h3>Probar</h3><p>Inspeccionar MOISES en Chrome, pedir acciones y analizar capturas con visión.</p></div>
+  <div class="panel panel-lime"><div class="number">03</div><h3>Ver</h3><p>Inspección visual en Chrome, pedir acciones y analizar capturas con visión.</p></div>
 </div>
 
 <p class="mt-10 text-center opacity-75">Formato: entender → configurar → probar → revisar el resultado</p>
@@ -221,19 +221,83 @@ La ubicación exacta de la configuración depende del cliente.
 
 ---
 
-# Demo 1 · Primero estructura; luego pulimos
+# Demo 1 · Paso 1: primero la estructura
 
 <div class="prompt">
-Usa el MCP de draw.io para dibujar un flujo de solicitud de vacaciones:
-empleado → formulario → validación del responsable → aprobación o rechazo →
-notificación al empleado. Incluye también la rama de datos incompletos, que
-vuelve al formulario. Usa nombres claros y separa las responsabilidades.
+Usa el MCP de draw.io para dibujar el flujo de una <strong>solicitud de vacaciones</strong>
+en tres carriles: <strong>Empleado</strong>, <strong>Sistema</strong> y <strong>Responsable</strong>.
+El empleado rellena el formulario; el sistema comprueba que esté completo y, si
+no lo está, lo devuelve con el error; el responsable aprueba o rechaza, y el
+sistema notifica el resultado al empleado. Antes de abrirlo, dime qué
+herramienta vas a usar y por qué.
 </div>
 
-<div class="grid grid-cols-2 gap-6 mt-7">
-<div><strong>Pregunta al modelo:</strong><br>«¿Qué herramienta vas a usar y qué datos le vas a pasar?»</div>
-<div><strong>Revisa en draw.io:</strong><br>¿se entiende el orden?, ¿faltan ramas?, ¿puedes editar los elementos?</div>
+<div class="grid grid-cols-3 gap-5 mt-6">
+  <div class="panel panel-cyan !min-h-0"><div class="number">ANTES</div><p>¿Qué herramienta elige: XML, Mermaid o CSV? ¿Su explicación tiene sentido?</p></div>
+  <div class="panel panel-violet !min-h-0"><div class="number">AL ABRIR</div><p>¿Están los tres carriles, las dos decisiones y el retorno al formulario?</p></div>
+  <div class="panel panel-lime !min-h-0"><div class="number">RAMAS</div><p>¿Cada salida está etiquetada: <em>Completa / Incompleta</em>, <em>Aprueba / Rechaza</em>?</p></div>
 </div>
+
+<!--
+Lee el prompt en voz alta y señala las cuatro piezas: actores (carriles), pasos, decisiones y excepción. Es la receta de la diapositiva del caso.
+
+Deja que el modelo explique la herramienta antes de llamarla: así el público ve la decisión del modelo y la llamada MCP por separado.
+
+Plan B si el servidor no responde: pide que use open_drawio_mermaid con el contenido de diagramas/demo1-paso1.mmd, o abre directamente diagramas/demo1-paso1.drawio.
+-->
+
+---
+
+# Demo 1 · Resultado del paso 1
+
+<div class="diagram"><img src="/diagramas/demo1-paso1.svg" alt="Flujo de solicitud de vacaciones en tres carriles: Empleado, Sistema y Responsable"></div>
+
+<p class="mt-5"><strong>Generado con</strong> <code>open_drawio_mermaid</code> y disposición ELK: tres carriles, dos decisiones y el retorno al formulario, todo editable en draw.io.</p>
+
+---
+
+# Demo 1 · Paso 2: luego pulimos
+
+<div class="prompt">
+Sobre el mismo diagrama: marca en verde el final aprobado y en rojo el
+rechazado, incluye el motivo en la notificación de rechazo y reorganiza las
+cajas para que ninguna flecha se cruce.
+</div>
+
+<div class="grid grid-cols-2 gap-6 mt-6">
+<div class="panel panel-cyan">
+
+**Retoque a mano en draw.io**
+
+1. Mueve una caja: las flechas deben seguirla.
+2. Cambia el texto de una etiqueta.
+3. Guarda el resultado como `.drawio`.
+
+</div>
+<div class="panel panel-violet">
+
+**Qué observar**
+
+- ¿Ha cambiado solo lo pedido o ha rehecho todo el diagrama?
+- ¿Se ha mantenido la estructura del paso 1?
+- ¿Qué ha sido más rápido: pedirlo o hacerlo a mano?
+
+</div>
+</div>
+
+<div class="callout mt-5"><strong>Orden:</strong> primero los cambios por prompt y al final los retoques a mano. El MCP vuelve a generar el diagrama; no lee lo que editaste en el editor.</div>
+
+<!--
+Regla práctica para el público: si falla la estructura (falta una rama, un actor en el carril equivocado), corrige la petición; si es un detalle visual, corrígelo a mano.
+-->
+
+---
+
+# Demo 1 · Resultado del paso 2
+
+<div class="diagram"><img src="/diagramas/demo1-paso2.svg" alt="El mismo flujo con colores: final aprobado en verde, rechazo con motivo en rojo"></div>
+
+<p class="mt-5"><strong>Revisión:</strong> colores y motivo del rechazo, correctos. Pero una flecha aún cruza un carril: justo el retoque que conviene hacer a mano.</p>
 
 ---
 
@@ -631,6 +695,18 @@ code {
 
 .steps p {
   margin: 0;
+}
+
+.diagram {
+  padding: 0.6rem;
+  border-radius: 0.8rem;
+  background: #ffffff;
+}
+
+.diagram img {
+  width: 100%;
+  max-height: 340px;
+  object-fit: contain;
 }
 
 .mermaid {

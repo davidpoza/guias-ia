@@ -1,0 +1,20 @@
+flowchart LR
+  subgraph EMP["Empleado"]
+    A["Rellena el formulario"]
+    F["Recibe la notificación"]
+  end
+  subgraph SIS["Sistema"]
+    B{"¿Datos completos?"}
+    C["Envía al responsable"]
+    N["Notifica el resultado"]
+  end
+  subgraph RES["Responsable"]
+    D{"¿Aprueba?"}
+  end
+  A --> B
+  B -->|"Incompleta"| A
+  B -->|"Completa"| C
+  C --> D
+  D -->|"Aprueba"| N
+  D -->|"Rechaza"| N
+  N --> F
