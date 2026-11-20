@@ -10,6 +10,7 @@ drawings:
   persist: false
 transition: slide-left
 mdc: true
+routerMode: hash
 ---
 
 <div class="cover-kicker">TALLER PRÁCTICO · MCP</div>
@@ -185,14 +186,17 @@ y CSV; la salida puede seguir siendo editable.
 <div class="grid grid-cols-2 gap-6 mt-7">
 <div class="panel">
 
-**Conectar (ejemplo `mcpServers`)**
+**Conectar en OpenCode (`opencode.json`)**
 
 ```json
 {
-  "mcpServers": {
-    "drawio": {
-      "command": "npx",
-      "args": ["-y", "@drawio/mcp"]
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "servers": {
+      "drawio": {
+        "type": "local",
+        "command": ["npx", "-y", "@drawio/mcp"]
+      }
     }
   }
 }
@@ -207,7 +211,7 @@ y CSV; la salida puede seguir siendo editable.
 2. Pide un flujo con camino feliz y error.
 3. Revisa el diagrama que se abre en draw.io.
 
-La ubicación exacta de la configuración depende del cliente.
+Va en `opencode.json` del proyecto o en `~/.config/opencode/opencode.json` para todos.
 
 </div>
 </div>
@@ -224,6 +228,8 @@ La ubicación exacta de la configuración depende del cliente.
 | `search_shapes` | Busca formas e iconos en las bibliotecas de draw.io (AWS, Azure, redes…). |
 | `list_pages` · `get_page` · `set_page` | Leen y modifican páginas de un fichero `.drawio` local. |
 
+---
+zoom: 0.88
 ---
 
 # Mermaid o draw.io: ¿cuándo usar cada uno?
@@ -363,21 +369,26 @@ advertencias y las imágenes extraídas.
 
 ---
 
-# Configuración de ejemplo · cliente con `mcpServers`
+# Configuración en OpenCode · `opencode.json`
 
 ```json
 {
-  "mcpServers": {
-    "2md": {
-      "command": "C:\\ruta\\a\\2MD\\2MD-MCP.exe",
-      "timeout": 600
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "servers": {
+      "2md": {
+        "type": "local",
+        "command": ["C:\\ruta\\a\\2MD\\2MD-MCP.exe"],
+        "timeout": { "execution": 600000 }
+      }
     }
   }
 }
 ```
 
-- Ejemplo para clientes con estructura `mcpServers`; la interfaz y el formato pueden variar.
-- Comprueba que el cliente muestra el servidor **2md** y la herramienta **`leer_documento`**.
+- En OpenCode, los servidores van en `mcp.servers` y `command` es una lista: el ejecutable y sus argumentos.
+- `timeout.execution` va en milisegundos: 600000 son 10 minutos para documentos grandes.
+- Comprueba con `opencode mcp list` que **2md** aparece conectado y, en la sesión, que está la tool **`leer_documento`**.
 - La ruta del documento se resuelve respecto al directorio permitido si es relativa.
 
 ---
@@ -466,13 +477,15 @@ layout: section
 # El agente mira la misma interfaz que tú
 
 <div class="grid grid-cols-3 gap-5 mt-9">
-  <div class="panel panel-cyan"><div class="number">1</div><h3>Chrome</h3><p>Presenta MOISES en un navegador de prueba.</p></div>
+  <div class="panel panel-cyan"><div class="number">1</div><h3>Chrome</h3><p>Abre la web real, por ejemplo Ryanair, en un perfil de prueba.</p></div>
   <div class="panel panel-violet"><div class="number">2</div><h3>DevTools MCP</h3><p>Permite navegar, inspeccionar, interactuar y tomar capturas.</p></div>
   <div class="panel panel-lime"><div class="number">3</div><h3>Modelo con visión</h3><p>Interpreta las capturas y ayuda a describir lo que ve.</p></div>
 </div>
 
 <div class="callout mt-8"><strong>Importante:</strong> el modelo no controla Chrome por sí solo. MCP aporta las herramientas; el cliente y el modelo deciden cómo utilizarlas.</div>
 
+---
+zoom: 0.85
 ---
 
 # Algunas tools del MCP de Chrome DevTools
@@ -495,14 +508,17 @@ layout: section
 
 1. En Chrome, abre `chrome://inspect/#remote-debugging`.
 2. Habilita **Remote Debugging** y confirma que permites conexiones.
-3. Registra el servidor MCP en tu cliente:
+3. Registra el servidor en `opencode.json`:
 
 ```json
 {
-  "mcpServers": {
-    "chrome-devtools": {
-      "command": "npx",
-      "args": ["-y", "chrome-devtools-mcp@latest", "--autoConnect"]
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "servers": {
+      "chrome-devtools": {
+        "type": "local",
+        "command": ["npx", "-y", "chrome-devtools-mcp@latest", "--autoConnect"]
+      }
     }
   }
 }
@@ -512,57 +528,92 @@ layout: section
 
 ---
 
-# Si necesitas el puerto de depuración
+# Demo 3 · Buscar el vuelo más barato en Ryanair
 
-Inicia una instancia **separada** de Chrome con un perfil desechable y el puerto
-habilitado. En Windows, ajusta la ruta de `chrome.exe` a tu instalación:
+**Prompt exacto:**
 
-```powershell
-& "$env:ProgramFiles\Google\Chrome\Application\chrome.exe" `
-  --remote-debugging-port=9222 `
-  --user-data-dir="$env:TEMP\chrome-mcp"
+```text
+Usando el mcp chrome devtools, navega a la web de Ryanair, y dame el precio más barato para un viaje
+De Reus (Barcelona) a Düsseldorf Weeze
+fechas flexibles
+para 2 adultos en Mayo de 5 a 10 noches
 ```
 
-Configura el servidor con `--browser-url=http://127.0.0.1:9222`.
-
-<div class="callout mt-5">No habilites depuración sobre un perfil personal: una conexión de depuración puede acceder al contenido del navegador. Usa un perfil limpio y cierra la sesión al terminar.</div>
-
----
-
-# Demo 3 · Prueba guiada en MOISES
-
-<div class="prompt">
-En la instancia de prueba de MOISES que ya está abierta, inspecciona la pantalla
-actual y explica qué opciones principales se ven. No envíes formularios ni
-modifiques datos. Toma una captura. Después, describe un flujo de prueba seguro
-para llegar a la pantalla de búsqueda, indicando en qué momento pedirías
-confirmación antes de realizar una acción con efectos.
+<div class="grid grid-cols-3 gap-5 mt-6">
+  <div class="panel panel-cyan !min-h-0"><div class="number">TOOLS</div><p>¿Qué usa para orientarse: <code>take_snapshot</code> o <code>take_screenshot</code>? ¿Cómo resuelve las cookies y el calendario?</p></div>
+  <div class="panel panel-violet !min-h-0"><div class="number">CRITERIO</div><p>¿Respeta 2 adultos, mayo y estancias de 5 a 10 noches? ¿Explica cómo ha comparado las fechas?</p></div>
+  <div class="panel panel-lime !min-h-0"><div class="number">VERIFICA</div><p>Comprueba en la pantalla el precio y las fechas que da. ¿Se detiene antes de reservar o pagar?</p></div>
 </div>
 
-<div class="grid grid-cols-2 gap-6 mt-7">
-<div><strong>Observa:</strong><br>¿el agente describe elementos visibles y toma la captura correcta?</div>
-<div><strong>Controla:</strong><br>¿pide permiso antes de una acción que cambia datos?</div>
+<style>
+pre, pre code { white-space: pre-wrap !important; word-break: break-word; }
+</style>
+
+<!--
+Pega el prompt tal cual. Usa un perfil de Chrome limpio, sin sesión de Ryanair.
+Los precios cambian: no hay solución fija, el resultado se valida mirando la propia web.
+-->
+
+---
+zoom: 0.72
+---
+
+# Demo 3 · Resultado
+
+<div class="grid grid-cols-2 gap-6 mt-2">
+<div>
+  <img src="/capturas/demo3-resultado.png" alt="Respuesta final del agente: 332 € para 2 adultos, del 19 al 26 de mayo de 2027, y las 7 opciones de mayo ordenadas por precio" style="max-height: 560px; width: auto; margin: 0 auto; border-radius: 0.5rem;">
+</div>
+<div>
+
+**Cómo llegó: 71 llamadas a tools**
+
+1. Prueba dos URLs inventadas del buscador: «Page not found». Vuelve a la portada.
+2. Rellena origen y destino como una persona: `fill_form`, `click` y `press_key`.
+3. **El slider de noches se le resiste**: unas 20 llamadas con `evaluate_script` y flechas del teclado hasta dejarlo en «5 a 10 noches».
+4. Pone 2 adultos, busca y carga los 7 resultados.
+5. Abre el más barato en otra pestaña para ver el desglose: 165,98 € × 2.
+
+**Para comentar**
+
+- **Coste: unos 4 millones de tokens, sin usar visión**: en cada una de las 71 llamadas se reenvía todo el contexto acumulado.
+- Se orientó con `take_snapshot` y su propio JavaScript: **ninguna captura de pantalla**.
+- **Supuso el año**: mayo de 2027. Hay que revisarlo.
+
+</div>
 </div>
 
 ---
 
-# De la inspección a una prueba funcional
+# Demo 4 · Ahora sí hace falta mirar
 
-Una vez acordado el recorrido, pide **una acción cada vez**:
+**Prompt exacto:**
 
-1. Identificar la pantalla y el estado inicial.
-2. Ejecutar el paso inocuo y verificar el resultado visible.
-3. Tomar una captura al llegar a un punto de control.
-4. Detenerse ante datos personales, cambios persistentes o incertidumbre.
+```text
+Usando el mcp chrome devtools, responde si o no, en esta url ves a un colega tuyo? https://imgur.com/a/YGOJmae
+```
 
-<p class="mt-7"><strong>La captura es evidencia para revisar, no una prueba automática de que el sistema funciona correctamente.</strong> Contrasta los resultados esperados con una persona y un entorno autorizados.</p>
+<div class="grid grid-cols-2 gap-6 mt-4">
+<div>
+  <img src="/capturas/demo4-imgur.jpg" alt="La imagen del enlace: el endoesqueleto metálico de Terminator con un arma" style="max-height: 270px; width: auto; margin: 0 auto; border-radius: 0.5rem;">
+</div>
+<div>
 
----
+- **Sin pistas:** el título y la descripción de la página solo dicen «imgur.com». En texto no hay nada que responda.
+- **Tools:** ¿llama a `take_screenshot`? Si solo usa `take_snapshot`, está adivinando.
+- **Interpreta:** no basta con describir; tiene que reconocer qué hay y relacionarlo con «colega tuyo». ¿Responde solo sí o no?
 
-# Visión: capacidad y límites
+</div>
+</div>
 
-- GLM-5.3-Flash acepta imágenes; un cliente que le entregue capturas puede pedirle describir lo que ve.
-- El MCP toma capturas y ofrece acciones de navegador; la visión ayuda a interpretar píxeles.
-- Una captura puede estar incompleta, desactualizada o no mostrar un error.
-- El modelo puede confundir texto, controles o estados; verifica manualmente lo importante.
-- El servidor expone contenido del navegador al cliente MCP. Evita pestañas con datos sensibles.
+<div class="callout mt-4">Contraste con la demo 3: allí el árbol de accesibilidad bastaba. Aquí la respuesta solo está en los píxeles.</div>
+
+<style>
+pre, pre code { white-space: pre-wrap !important; word-break: break-word; }
+</style>
+
+<!--
+Respuesta esperada: «Sí». La imagen es el endoesqueleto metálico de Terminator: un robot, «colega» de una IA.
+Si el modelo responde sin take_screenshot, pregúntale en qué se basa.
+-->
+

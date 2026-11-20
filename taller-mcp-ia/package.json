@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "slidev slides.md",
     "build": "slidev build",
-    "export": "slidev export"
+    "export": "slidev export",
+    "serve": "npx -y serve dist"
   },
   "devDependencies": {
     "@slidev/cli": "^52.0.0"
