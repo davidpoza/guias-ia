@@ -174,8 +174,7 @@ y CSV; la salida puede seguir siendo editable.
 
 1. Comprueba que el cliente descubre el servidor.
 2. Pide un flujo con camino feliz y error.
-3. Observa qué herramienta elige.
-4. Abre el resultado y corrige un detalle a mano.
+3. Revisa el diagrama que se abre en draw.io.
 
 La ubicación exacta de la configuración depende del cliente.
 
@@ -221,83 +220,37 @@ La ubicación exacta de la configuración depende del cliente.
 
 ---
 
-# Demo 1 · Paso 1: primero la estructura
+# Demo 1 · Del prompt al diagrama
 
-<div class="prompt">
-Usa el MCP de draw.io para dibujar el flujo de una <strong>solicitud de vacaciones</strong>
-en tres carriles: <strong>Empleado</strong>, <strong>Sistema</strong> y <strong>Responsable</strong>.
-El empleado rellena el formulario; el sistema comprueba que esté completo y, si
-no lo está, lo devuelve con el error; el responsable aprueba o rechaza, y el
-sistema notifica el resultado al empleado. Antes de abrirlo, dime qué
-herramienta vas a usar y por qué.
-</div>
+**Prompt exacto usado para generar el diagrama:**
+
+```text
+Usa el MCP de draw.io para dibujar el flujo de una solicitud de vacaciones en tres carriles: Empleado, Sistema y Responsable. El empleado rellena el formulario; el sistema comprueba que esté completo y, si no lo está, lo devuelve con el error; el responsable aprueba o rechaza, y el sistema notifica el resultado al empleado.
+```
 
 <div class="grid grid-cols-3 gap-5 mt-6">
-  <div class="panel panel-cyan !min-h-0"><div class="number">ANTES</div><p>¿Qué herramienta elige: XML, Mermaid o CSV? ¿Su explicación tiene sentido?</p></div>
-  <div class="panel panel-violet !min-h-0"><div class="number">AL ABRIR</div><p>¿Están los tres carriles, las dos decisiones y el retorno al formulario?</p></div>
+  <div class="panel panel-cyan !min-h-0"><div class="number">CARRILES</div><p>¿Están <em>Empleado</em>, <em>Sistema</em> y <em>Responsable</em>, cada paso en el suyo?</p></div>
+  <div class="panel panel-violet !min-h-0"><div class="number">DECISIONES</div><p>¿Aparecen las dos decisiones y el retorno al formulario?</p></div>
   <div class="panel panel-lime !min-h-0"><div class="number">RAMAS</div><p>¿Cada salida está etiquetada: <em>Completa / Incompleta</em>, <em>Aprueba / Rechaza</em>?</p></div>
 </div>
 
+<style>
+pre, pre code { white-space: pre-wrap !important; word-break: break-word; }
+</style>
+
 <!--
-Lee el prompt en voz alta y señala las cuatro piezas: actores (carriles), pasos, decisiones y excepción. Es la receta de la diapositiva del caso.
+Este es el prompt exacto usado para generar el diagrama (copia en diagramas/demo1-prompt.md). Pégalo tal cual, sin añadir nada; lánzalo y, cuando se abra draw.io, repasa con el público las tres comprobaciones.
 
-Deja que el modelo explique la herramienta antes de llamarla: así el público ve la decisión del modelo y la llamada MCP por separado.
-
-Plan B si el servidor no responde: pide que use open_drawio_mermaid con el contenido de diagramas/demo1-paso1.mmd, o abre directamente diagramas/demo1-paso1.drawio.
+Plan B si el servidor no responde: pide que use open_drawio_mermaid con el contenido de diagramas/demo1.mmd, o abre directamente diagramas/demo1.drawio.
 -->
 
 ---
 
-# Demo 1 · Resultado del paso 1
+# Demo 1 · Resultado
 
-<div class="diagram"><img src="/diagramas/demo1-paso1.svg" alt="Flujo de solicitud de vacaciones en tres carriles: Empleado, Sistema y Responsable"></div>
+<div class="diagram"><img src="/diagramas/demo1.svg" alt="Flujo de solicitud de vacaciones en tres carriles: Empleado, Sistema y Responsable"></div>
 
-<p class="mt-5"><strong>Generado con</strong> <code>open_drawio_mermaid</code> y disposición ELK: tres carriles, dos decisiones y el retorno al formulario, todo editable en draw.io.</p>
-
----
-
-# Demo 1 · Paso 2: luego pulimos
-
-<div class="prompt">
-Sobre el mismo diagrama: marca en verde el final aprobado y en rojo el
-rechazado, incluye el motivo en la notificación de rechazo y reorganiza las
-cajas para que ninguna flecha se cruce.
-</div>
-
-<div class="grid grid-cols-2 gap-6 mt-6">
-<div class="panel panel-cyan">
-
-**Retoque a mano en draw.io**
-
-1. Mueve una caja: las flechas deben seguirla.
-2. Cambia el texto de una etiqueta.
-3. Guarda el resultado como `.drawio`.
-
-</div>
-<div class="panel panel-violet">
-
-**Qué observar**
-
-- ¿Ha cambiado solo lo pedido o ha rehecho todo el diagrama?
-- ¿Se ha mantenido la estructura del paso 1?
-- ¿Qué ha sido más rápido: pedirlo o hacerlo a mano?
-
-</div>
-</div>
-
-<div class="callout mt-5"><strong>Orden:</strong> primero los cambios por prompt y al final los retoques a mano. El MCP vuelve a generar el diagrama; no lee lo que editaste en el editor.</div>
-
-<!--
-Regla práctica para el público: si falla la estructura (falta una rama, un actor en el carril equivocado), corrige la petición; si es un detalle visual, corrígelo a mano.
--->
-
----
-
-# Demo 1 · Resultado del paso 2
-
-<div class="diagram"><img src="/diagramas/demo1-paso2.svg" alt="El mismo flujo con colores: final aprobado en verde, rechazo con motivo en rojo"></div>
-
-<p class="mt-5"><strong>Revisión:</strong> colores y motivo del rechazo, correctos. Pero una flecha aún cruza un carril: justo el retoque que conviene hacer a mano.</p>
+<p class="mt-5"><strong>Generado con el prompt exacto de la diapositiva anterior</strong> (<code>diagramas/demo1-prompt.md</code>) mediante <code>open_drawio_mermaid</code> + ELK. <strong>Comprobación:</strong> tres carriles, dos decisiones etiquetadas y el retorno al formulario.</p>
 
 ---
 
