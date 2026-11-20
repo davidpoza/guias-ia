@@ -336,20 +336,76 @@ advertencias y las imágenes extraídas.
 
 ---
 
-# Demo 2 · Una lectura comprobable
+# Por qué usar el MCP de 2MD
 
-<div class="prompt">
-Usa <code>leer_documento</code> para leer
-<code>procedimientos\vacaciones.docx</code>. Resume el objetivo, los pasos
-principales y las excepciones. Si hay imágenes o advertencias, indícalo. No
-rellenes los huecos con suposiciones: separa lo que dice el documento de lo
-que no se ha podido extraer.
+<div class="grid grid-cols-2 gap-5 mt-8">
+  <div class="panel panel-cyan !min-h-0"><div class="number">01</div><h3>Totalmente local</h3><p>La conversión a Markdown se hace en tu equipo; el documento no se sube a ningún servicio para extraerlo.</p></div>
+  <div class="panel panel-violet !min-h-0"><div class="number">02</div><h3>Sin límite de tamaño ni de ficheros</h3><p>No hay tope de páginas, de megas ni de documentos por conversación.</p></div>
+  <div class="panel panel-lime !min-h-0"><div class="number">03</div><h3>Sin indexar</h3><p>A diferencia de AIOperator, no hace falta indexar antes: se pide el documento y se lee al momento.</p></div>
+  <div class="panel !min-h-0"><div class="number">04</div><h3>Ve las imágenes</h3><p>Con un modelo multimodal, el asistente puede interpretar las imágenes extraídas, por ejemplo un diagrama.</p></div>
 </div>
 
-<div class="grid grid-cols-2 gap-6 mt-7">
-<div><strong>Comprobación:</strong><br>Compara una frase del Markdown con el documento original.</div>
-<div><strong>Pregunta:</strong><br>¿Hay imágenes o una advertencia de PDF escaneado? ¿Qué quedó fuera?</div>
+---
+
+# Demo 2 · A · PDF: columnas, tablas y un diagrama
+
+**Prompt exacto:**
+
+```text
+Usa leer_documento para leer incidencias.pdf. Después:
+1. Resume en cinco líneas lo que muestra la figura 1, mirando la imagen extraída y no el texto.
+2. Genera un Markdown con las tres tablas del documento y con el diagrama de la figura 1 en Mermaid.
+3. Verifica el orden de lectura de las columnas: lista los apartados §1 a §8 en el orden en que aparecen en la extracción y señala cualquier frase que mezcle las dos columnas.
+Si algo no se ha podido extraer, dilo en lugar de suponerlo.
+```
+
+<p class="mt-4 opacity-75">4 páginas: texto a dos columnas con párrafos partidos entre columnas y páginas, 3 tablas y el flujo de la figura 1 como imagen. El texto no describe la figura: solo se puede resumir mirándola.</p>
+
+<style>
+pre, pre code { white-space: pre-wrap !important; word-break: break-word; }
+</style>
+
+<!--
+Copia documentos/incidencias.pdf al directorio permitido de 2MD antes de la sesión. Pega el prompt tal cual.
+Compara la respuesta con documentos/solucion-esperada.md.
+-->
+
+---
+
+# Demo 2 · B · Word: columnas, tablas y un diagrama
+
+**Prompt exacto:**
+
+```text
+Usa leer_documento para leer incidencias.docx. Después:
+1. Resume en cinco líneas lo que muestra la figura 1, mirando la imagen extraída y no el texto.
+2. Genera un Markdown con las tres tablas del documento y con el diagrama de la figura 1 en Mermaid.
+3. Verifica el orden de lectura de las columnas: lista los apartados §1 a §8 en el orden en que aparecen en la extracción y señala cualquier frase que mezcle las dos columnas.
+Si algo no se ha podido extraer, dilo en lugar de suponerlo.
+```
+
+<p class="mt-4 opacity-75">El mismo contenido en DOCX, con una sección de Word a dos columnas, tablas nativas y la figura incrustada. Mismo prompt; solo cambia el fichero.</p>
+
+<style>
+pre, pre code { white-space: pre-wrap !important; word-break: break-word; }
+</style>
+
+<!--
+Copia documentos/incidencias.docx al directorio permitido de 2MD antes de la sesión. Pega el prompt tal cual.
+Compara la respuesta con documentos/solucion-esperada.md.
+-->
+
+---
+
+# Demo 2 · Cómo comprobar el resultado
+
+<div class="grid grid-cols-3 gap-5 mt-8">
+  <div class="panel panel-cyan !min-h-0"><div class="number">COLUMNAS</div><p>¿Salen §1 → §8 en orden? En el PDF, §6 salta de columna a media frase: «…no se detiene mientras se / espera al proveedor».</p></div>
+  <div class="panel panel-violet !min-h-0"><div class="number">TABLAS</div><p>Comprueba una celda: en marzo, <em>Resueltas en N1</em> = <strong>74 %</strong>; la guardia atiende <em>cualquier P1, 24×7</em>.</p></div>
+  <div class="panel panel-lime !min-h-0"><div class="number">DIAGRAMA</div><p>Si el usuario no confirma, ¿vuelve a <strong>Diagnóstico en N1</strong>? Pega el Mermaid en draw.io o en un visor y compáralo con la figura.</p></div>
 </div>
+
+<div class="callout mt-6">Solución completa: <code>documentos/solucion-esperada.md</code>. Compara las dos demos: ¿se lee igual el PDF que el Word?</div>
 
 ---
 
