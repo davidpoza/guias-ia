@@ -110,6 +110,37 @@ sequenceDiagram
 <div class="callout mt-7"><strong>Regla práctica:</strong> antes de conectar, pregunta qué contenido verá el modelo, qué puede modificar el servidor y qué datos se envían fuera del equipo.</div>
 
 ---
+
+# Consideraciones de seguridad
+
+<div class="grid grid-cols-2 gap-6 mt-6">
+<div class="panel">
+
+**Instalar un MCP es ejecutar código de un tercero**
+
+- Corre con **tus permisos**: lee ficheros, abre conexiones y lanza procesos.
+- `npx -y paquete@latest` descarga y ejecuta **la última versión** sin preguntar: puede cambiar mañana.
+- El texto que devuelve llega al modelo: un documento o una web pueden **inyectar instrucciones**.
+- Nombre conocido ≠ autor fiable: comprueba **quién lo publica**, el repositorio y su mantenimiento.
+
+</div>
+<div class="panel panel-violet">
+
+**Ejemplo: 2MD y su motor Xberg**
+
+- El binario de Xberg **sí puede** usar la red: descarga URLs, sigue enlaces y modelos, y llama a LLM.
+- Se **analizó con IA** el código de Xberg para localizar todo lo que puede abrir conexiones.
+- 2MD desactiva cada vía de forma explícita y fija la librería con una **copia local y su SHA-512**.
+- Los tests comprueban que la conversión abre **0 conexiones**, incluso sin interfaz de red.
+
+<p class="text-sm opacity-75 mt-2">Detalle: <code>docs/security.md</code> en github.com/davidpoza/2md</p>
+
+</div>
+</div>
+
+<div class="callout mt-5"><strong>Antes de instalar:</strong> ¿quién está detrás?, ¿qué versión exacta ejecuto?, ¿qué puede tocar? y ¿alguien ha comprobado a dónde se conecta?</div>
+
+---
 layout: section
 ---
 
@@ -183,6 +214,18 @@ La ubicación exacta de la configuración depende del cliente.
 
 ---
 
+# Algunas tools del MCP de draw.io
+
+| Tool | Qué hace |
+|---|---|
+| `open_drawio_mermaid` | Convierte Mermaid en un diagrama editable y lo abre en draw.io. **La que usamos en la demo.** |
+| `open_drawio_xml` | Abre un diagrama descrito en XML nativo de draw.io: control total de formas y estilos. |
+| `open_drawio_csv` | Genera el diagrama a partir de datos tabulares, como un organigrama. |
+| `search_shapes` | Busca formas e iconos en las bibliotecas de draw.io (AWS, Azure, redes…). |
+| `list_pages` · `get_page` · `set_page` | Leen y modifican páginas de un fichero `.drawio` local. |
+
+---
+
 # Mermaid o draw.io: ¿cuándo usar cada uno?
 
 <div class="grid grid-cols-2 gap-6 mt-5">
@@ -253,17 +296,6 @@ Plan B si el servidor no responde: pide que use open_drawio_mermaid con el conte
 <p class="mt-5"><strong>Generado con el prompt exacto de la diapositiva anterior</strong> (<code>diagramas/demo1-prompt.md</code>) mediante <code>open_drawio_mermaid</code> + ELK. <strong>Comprobación:</strong> tres carriles, dos decisiones etiquetadas y el retorno al formulario.</p>
 
 ---
-
-# Un resultado útil no es automáticamente seguro
-
-- El servidor puede ejecutarse localmente, pero el **editor web** puede descargarse desde draw.io.
-- Los datos del prompt también siguen la política del proveedor del modelo.
-- Una URL de diagrama puede incluir el contenido en el fragmento: no compartas esa URL como si estuviera vacía.
-- Si buscas formas o recursos externos, comprueba qué solicitudes salen del equipo.
-
-<p class="mt-6"><strong>Práctica:</strong> empieza con un proceso ficticio; no incluyas arquitectura interna, credenciales ni datos de clientes.</p>
-
----
 layout: section
 ---
 
@@ -301,6 +333,20 @@ advertencias y las imágenes extraídas.
 
 </div>
 </div>
+
+---
+
+# La tool del MCP de 2MD
+
+2MD expone **una sola tool** y sirve las imágenes como **recursos MCP**.
+
+| Tool / recurso | Qué hace |
+|---|---|
+| `leer_documento(ruta)` | Convierte un PDF o DOCX del directorio permitido, sin IA ni OCR. Devuelve `markdown`, `archivo_markdown`, `advertencias` e `imagenes`. |
+| `resources/list` | Lista las imágenes extraídas, con URIs del tipo `2md://images/…`. |
+| `resources/read` | Entrega una imagen para que un modelo multimodal pueda verla. |
+
+<div class="callout mt-6">En el Markdown, los enlaces a imágenes ya apuntan a <code>2md://images/…</code>. Si el cliente no admite recursos MCP, el modelo recibe el texto, pero no ve el diagrama.</div>
 
 ---
 
@@ -408,23 +454,12 @@ Compara la respuesta con documentos/solucion-esperada.md.
 <div class="callout mt-6">Solución completa: <code>documentos/solucion-esperada.md</code>. Compara las dos demos: ¿se lee igual el PDF que el Word?</div>
 
 ---
-
-# Extraer no es validar
-
-1. Contrasta el resumen con el original, especialmente tablas y notas.
-2. Si el PDF es una imagen escaneada, detente: la extracción actual no hace OCR.
-3. Comprueba las imágenes en `assets` y los enlaces del Markdown.
-4. No pegues texto confidencial en un chat sin revisar antes las reglas de tu organización.
-
-<p class="mt-6 opacity-75">La conversión normal de 2MD es local. Un paso posterior de IA es otra operación y puede tener otro destino de datos.</p>
-
----
 layout: section
 ---
 
 # 03 · Pruebas visuales
 
-## Chrome DevTools MCP + visión para explorar MOISES
+## Chrome DevTools MCP + visión artificial
 
 ---
 
@@ -437,6 +472,20 @@ layout: section
 </div>
 
 <div class="callout mt-8"><strong>Importante:</strong> el modelo no controla Chrome por sí solo. MCP aporta las herramientas; el cliente y el modelo deciden cómo utilizarlas.</div>
+
+---
+
+# Algunas tools del MCP de Chrome DevTools
+
+| Tool | Qué hace |
+|---|---|
+| `navigate_page` · `new_page` | Abre una URL o una pestaña nueva. |
+| `take_snapshot` | Devuelve el árbol de accesibilidad de la página con un identificador por elemento. |
+| `take_screenshot` | Captura la página o un elemento para que el modelo la analice con visión. |
+| `click` · `fill` · `fill_form` · `press_key` | Interactúan con los elementos identificados en el snapshot. |
+| `wait_for` | Espera a que aparezca un texto antes de seguir. |
+| `list_console_messages` · `list_network_requests` | Revisan errores de consola y peticiones de red. |
+| `lighthouse_audit` · `performance_start_trace` | Auditan la accesibilidad y el rendimiento. |
 
 ---
 
@@ -517,212 +566,3 @@ Una vez acordado el recorrido, pide **una acción cada vez**:
 - Una captura puede estar incompleta, desactualizada o no mostrar un error.
 - El modelo puede confundir texto, controles o estados; verifica manualmente lo importante.
 - El servidor expone contenido del navegador al cliente MCP. Evita pestañas con datos sensibles.
-
----
-layout: section
----
-
-# Cierre · criterio antes que magia
-
----
-
-# Lo que hemos conectado
-
-<div class="grid grid-cols-3 gap-5 mt-10">
-  <div class="panel panel-cyan"><h3>draw.io</h3><p>Una descripción se convierte en un diagrama que puedes corregir.</p></div>
-  <div class="panel panel-violet"><h3>2MD</h3><p>Un documento local se convierte en texto revisable, con advertencias visibles.</p></div>
-  <div class="panel panel-lime"><h3>Chrome</h3><p>Una interfaz se puede inspeccionar, probar y capturar bajo supervisión.</p></div>
-</div>
-
-<p class="mt-9 text-center text-xl"><strong>MCP conecta capacidades. El criterio humano sigue al mando.</strong></p>
-
----
-
-# Lista rápida antes de conectar cualquier MCP
-
-- ¿Confío en el servidor y entiendo los permisos que necesita?
-- ¿Qué contenido verá el cliente y qué podría llegar al proveedor del modelo?
-- ¿Estoy usando una cuenta, carpeta, instancia y datos de prueba?
-- ¿Qué acciones podrían modificar información o iniciar una operación real?
-- ¿Cómo voy a revisar el resultado y detener el flujo?
-
-<p class="mt-8 text-center opacity-75">Empieza con un ejemplo pequeño, observa cada llamada y amplía permisos solo si hacen falta.</p>
-
----
-
-# Referencias para seguir explorando
-
-- [Model Context Protocol — documentación oficial](https://modelcontextprotocol.io/)
-- [draw.io MCP — artículo práctico y configuración](https://davidinformatico.com/drawio-mcp)
-- [2MD — repositorio, README y lógica funcional](https://github.com/davidpoza/2md)
-- [Chrome DevTools MCP — repositorio oficial](https://github.com/ChromeDevTools/chrome-devtools-mcp)
-- [Chrome DevTools — conexión al navegador y configuración](https://developer.chrome.com/docs/devtools/agents/get-started/configuration)
-- [GLM-5.3-Flash — ficha del modelo](https://build.nvidia.com/z-ai/glm-5-3-flash/modelcard)
-- [Slidev — guía](https://sli.dev/guide/)
-
-<p class="mt-8 text-center"><strong>¡Gracias! Preguntas y pruebas.</strong></p>
-
----
-layout: end
----
-
-# Menos copiar y pegar.
-
-## Más conectar, observar y verificar.
-
-<div class="end-mark">MCP · DRAW.IO · 2MD · CHROME DEVTOOLS</div>
-
-<style>
-:root {
-  --slidev-theme-primary: #64f5c2;
-}
-
-.slidev-layout {
-  background:
-    radial-gradient(ellipse at 86% 12%, rgba(84, 74, 190, 0.16), transparent 34%),
-    #10131d;
-  color: #eef0fa;
-}
-
-.slidev-layout.cover,
-.slidev-layout.end {
-  background:
-    radial-gradient(ellipse at 77% 33%, rgba(100, 245, 194, 0.16), transparent 31%),
-    radial-gradient(ellipse at 12% 86%, rgba(130, 102, 255, 0.16), transparent 35%),
-    #10131d;
-}
-
-h1 {
-  color: #f7f7ff;
-  letter-spacing: -0.035em;
-}
-
-h2 {
-  color: #b7c3d9;
-  font-weight: 500;
-}
-
-h3 {
-  margin: 0.5rem 0;
-  color: #f5f6ff;
-  font-size: 1.15rem;
-}
-
-strong {
-  color: #75f3c4;
-}
-
-code {
-  color: #9af4d0;
-}
-
-.cover-kicker,
-.end-mark {
-  color: #75f3c4;
-  font-size: 0.8rem;
-  font-weight: 700;
-  letter-spacing: 0.18em;
-}
-
-.cover-footer {
-  margin-top: 3rem;
-  color: #9aa5bc;
-  font-size: 0.9rem;
-}
-
-.panel {
-  min-height: 9rem;
-  padding: 1.1rem 1.2rem;
-  border: 1px solid rgba(185, 196, 220, 0.18);
-  border-radius: 0.8rem;
-  background: rgba(255, 255, 255, 0.035);
-}
-
-.panel p {
-  margin: 0.45rem 0 0;
-  color: #c4cadd;
-  font-size: 0.93rem;
-  line-height: 1.5;
-}
-
-.panel-cyan {
-  border-color: rgba(82, 215, 240, 0.38);
-}
-
-.panel-violet {
-  border-color: rgba(172, 137, 255, 0.4);
-}
-
-.panel-lime {
-  border-color: rgba(168, 233, 104, 0.38);
-}
-
-.number {
-  color: #75f3c4;
-  font-size: 0.82rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-}
-
-.callout {
-  padding: 0.9rem 1.1rem;
-  border-left: 3px solid #75f3c4;
-  border-radius: 0 0.5rem 0.5rem 0;
-  background: rgba(117, 243, 196, 0.07);
-  color: #d7dced;
-}
-
-.prompt {
-  padding: 1.25rem 1.4rem;
-  border: 1px solid rgba(172, 137, 255, 0.4);
-  border-radius: 0.8rem;
-  background: rgba(172, 137, 255, 0.07);
-  color: #f0edff;
-  font-size: 1.15rem;
-  line-height: 1.65;
-}
-
-.steps > div {
-  display: flex;
-  align-items: baseline;
-  gap: 1rem;
-  margin: 0.55rem 0;
-}
-
-.steps span {
-  display: inline-flex;
-  width: 1.8rem;
-  height: 1.8rem;
-  flex: 0 0 1.8rem;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid rgba(117, 243, 196, 0.5);
-  border-radius: 999px;
-  color: #75f3c4;
-  font-weight: 700;
-}
-
-.steps p {
-  margin: 0;
-}
-
-.diagram {
-  padding: 0.6rem;
-  border-radius: 0.8rem;
-  background: #ffffff;
-}
-
-.diagram img {
-  width: 100%;
-  max-height: 340px;
-  object-fit: contain;
-}
-
-.mermaid {
-  background: transparent !important;
-}
-
-.mermaid svg {
-  max-height: 390px;
-}
-</style>
