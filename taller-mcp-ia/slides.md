@@ -52,15 +52,16 @@ layout: section
 # MCP, explicado sin siglas
 
 **Model Context Protocol** es un protocolo abierto para conectar asistentes con
-herramientas y fuentes de contexto de forma estandarizada.
+herramientas y fuentes de contexto de forma estandarizada. El modelo recibe la
+lista de herramientas disponibles y **decide por sí mismo cuándo necesita una**.
 
 <div class="grid grid-cols-3 gap-4 mt-8">
-  <div class="panel"><div class="number">01</div><h3>El host</h3><p>La aplicación del asistente que usas.</p></div>
-  <div class="panel"><div class="number">02</div><h3>El cliente</h3><p>Gestiona la conexión MCP desde el host.</p></div>
-  <div class="panel"><div class="number">03</div><h3>El servidor</h3><p>Publica herramientas y recursos que el cliente puede descubrir.</p></div>
+  <div class="panel"><div class="number">01</div><h3>El host</h3><p>La aplicación del asistente que usas.</p><p class="text-sm opacity-75"><strong>Ej.:</strong> OpenCode, Claude Desktop, VS Code.</p></div>
+  <div class="panel"><div class="number">02</div><h3>El cliente</h3><p>Gestiona la conexión MCP desde el host.</p><p class="text-sm opacity-75"><strong>Ej.:</strong> la pieza de OpenCode que lanza <code>npx @drawio/mcp</code> y habla con él; una por servidor.</p></div>
+  <div class="panel"><div class="number">03</div><h3>El servidor</h3><p>Publica herramientas y recursos que el cliente puede descubrir.</p><p class="text-sm opacity-75"><strong>Ej.:</strong> draw.io MCP, 2MD o una calculadora que publica <code>raiz_cuadrada</code>.</p></div>
 </div>
 
-<p class="mt-6"><strong>Analogía:</strong> un conector común entre asistentes y herramientas; no es el modelo, ni una IA nueva, ni una garantía de que todo cliente lo soporte igual.</p>
+<p class="mt-6"><strong>Ejemplo:</strong> un LLM no sabe calcular una raíz cuadrada; predice texto y puede «inventar» decimales. Si le conectamos una calculadora por MCP, al ver la pregunta <em>se da cuenta</em> de que necesita la tool <code>raiz_cuadrada</code>, la invoca y devuelve √2 = 1,41421356… sin error. MCP no hace más listo al modelo: le da herramientas.</p>
 
 ---
 
@@ -93,9 +94,9 @@ sequenceDiagram
 # Tres palabras que conviene distinguir
 
 <div class="grid grid-cols-3 gap-5 mt-10">
-  <div class="panel panel-cyan"><h3>Tools</h3><p>Acciones invocables:<br><code>leer_documento</code>, abrir un diagrama, tomar una captura.</p></div>
-  <div class="panel panel-violet"><h3>Resources</h3><p>Contenido accesible al cliente, por ejemplo imágenes extraídas por 2MD.</p></div>
-  <div class="panel panel-lime"><h3>Prompts</h3><p>Plantillas reutilizables para guiar una tarea.</p></div>
+  <div class="panel panel-cyan"><h3>Tools</h3><p>Acciones que <strong>el modelo decide</strong> invocar.</p><p class="text-sm opacity-75"><strong>Ej.:</strong> <code>leer_documento</code> de 2MD, <code>open_drawio_mermaid</code> de draw.io, <code>take_screenshot</code> de Chrome o la <code>raiz_cuadrada</code> de la calculadora.</p></div>
+  <div class="panel panel-violet"><h3>Resources</h3><p>Contenido que el servidor expone para que el cliente lo lea, con una URI.</p><p class="text-sm opacity-75"><strong>Ej.:</strong> las imágenes que 2MD extrae de un PDF, en <code>2md://images/…</code>, para que un modelo con visión pueda verlas.</p></div>
+  <div class="panel panel-lime"><h3>Prompts</h3><p>Plantillas reutilizables que <strong>eliges tú</strong> para guiar una tarea.</p><p class="text-sm opacity-75"><strong>Ej.:</strong> un servidor de incidencias podría ofrecer «Resume esta incidencia», que aparece en el cliente como un comando <code>/</code>.</p></div>
 </div>
 
 <p class="mt-8 opacity-75">Cada servidor decide qué ofrece. Un cliente puede mostrar solo parte de esas capacidades.</p>
@@ -104,9 +105,11 @@ sequenceDiagram
 
 # Un MCP local también cruza fronteras
 
-- **Cliente ↔ servidor:** un servidor local suele comunicarse por `stdio`; no necesita publicar una web.
-- **Modelo ↔ proveedor:** la petición, los fragmentos de documento o la captura pueden viajar al servicio de IA, según el cliente y la configuración.
-- **Servidor ↔ aplicaciones:** los permisos efectivos dependen del sistema operativo, la configuración y las autorizaciones.
+Que el servidor corra en tu equipo **no significa** que los datos se queden en tu equipo.
+
+- **Cliente ↔ servidor:** un servidor local suele comunicarse por `stdio`; no abre puertos ni publica una web.<br><span class="text-sm opacity-75">Ej.: OpenCode lanza 2MD como proceso hijo y le habla por la entrada/salida estándar.</span>
+- **Host ↔ proveedor del modelo:** si el modelo está en la nube, lo que devuelve la tool viaja a ese servicio junto con tu petición.<br><span class="text-sm opacity-75">Ej.: 2MD convierte el PDF en local, pero el Markdown resultante se envía al LLM; una captura de Chrome, también.</span>
+- **Servidor ↔ sistema:** el servidor puede hacer todo lo que permitan tu usuario, su configuración y las autorizaciones que concedas.<br><span class="text-sm opacity-75">Ej.: con <code>--autoConnect</code>, el MCP de Chrome DevTools actúa en tu navegador real, con tus sesiones iniciadas.</span>
 
 <div class="callout mt-7"><strong>Regla práctica:</strong> antes de conectar, pregunta qué contenido verá el modelo, qué puede modificar el servidor y qué datos se envían fuera del equipo.</div>
 
@@ -217,6 +220,54 @@ Va en `opencode.json` del proyecto o en `~/.config/opencode/opencode.json` para 
 </div>
 
 ---
+zoom: 0.85
+---
+
+# draw.io MCP desde el repo clonado
+
+Alternativa a `npx`: ejecutar el código del repositorio oficial que has descargado y revisado.
+
+<div class="grid grid-cols-2 gap-6 mt-5">
+<div class="panel">
+
+**1 · Preparar el clon (una vez)**
+
+```bash
+git clone https://github.com/jgraph/drawio-mcp.git
+cd drawio-mcp/mcp-tool-server
+npm install
+npm run copy-shared
+```
+
+`copy-shared` copia a `src/` los módulos de `shared/`; sin él, el servidor falla al usar Mermaid o buscar formas.
+
+</div>
+<div class="panel panel-cyan">
+
+**2 · Conectar en OpenCode (`opencode.json`)**
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "servers": {
+      "drawio": {
+        "type": "local",
+        "command": ["node", "C:\\ruta\\a\\drawio-mcp\\mcp-tool-server\\src\\index.js"]
+      }
+    }
+  }
+}
+```
+
+Usa `node` directamente, no `npm start`: npm escribe en la salida estándar y rompe la comunicación por `stdio`.
+
+</div>
+</div>
+
+<div class="callout mt-4"><strong>Ventaja:</strong> la versión no cambia sola como con <code>npx -y</code>; actualizas con <code>git pull</code> cuando lo decides y vuelves a ejecutar <code>npm install</code> y <code>npm run copy-shared</code>.</div>
+
+---
 
 # Algunas tools del MCP de draw.io
 
@@ -311,38 +362,18 @@ layout: section
 
 ---
 
-# 2MD: extracción sin enviar el documento a IA
+# Por qué usar el MCP de 2MD
 
-2MD convierte **PDF y DOCX a Markdown localmente**. El MCP local expone
-`leer_documento`, que recibe una ruta y devuelve el Markdown, la ruta de salida,
-advertencias y las imágenes extraídas.
-
-<div class="grid grid-cols-2 gap-6 mt-7">
-<div class="panel panel-violet">
-
-**Qué esperar**
-
-- El documento de origen no se modifica.
-- El resultado se organiza en una carpeta por documento.
-- Las imágenes extraídas se guardan en `assets`.
-- OCR está desactivado: un PDF escaneado puede no producir texto útil.
-
-</div>
-<div class="panel">
-
-**Qué no asumir**
-
-- No garantiza fidelidad perfecta en tablas, diagramas u orden de lectura.
-- Que el MCP extraiga un archivo no significa que se envíe a un modelo.
-- El análisis con IA es opcional y requiere activación y consentimiento.
-- El cliente debe admitir los recursos MCP para acceder a las imágenes.
-
-</div>
+<div class="grid grid-cols-2 gap-5 mt-8">
+  <div class="panel panel-cyan !min-h-0"><div class="number">01</div><h3>Totalmente local</h3><p>La conversión a Markdown se hace en tu equipo; el documento no se sube a ningún servicio para extraerlo.</p></div>
+  <div class="panel panel-violet !min-h-0"><div class="number">02</div><h3>Sin límite de tamaño ni de ficheros</h3><p>No hay tope de páginas, de megas ni de documentos por conversación.</p></div>
+  <div class="panel panel-lime !min-h-0"><div class="number">03</div><h3>Sin indexar</h3><p>A diferencia de AIOperator, no hace falta indexar antes: se pide el documento y se lee al momento.</p></div>
+  <div class="panel !min-h-0"><div class="number">04</div><h3>Ve las imágenes</h3><p>Con un modelo multimodal, el asistente puede interpretar las imágenes extraídas, por ejemplo un diagrama.</p></div>
 </div>
 
 ---
 
-# La tool del MCP de 2MD
+# Qué expone el MCP de 2MD: una tool y recursos
 
 2MD expone **una sola tool** y sirve las imágenes como **recursos MCP**.
 
@@ -353,19 +384,6 @@ advertencias y las imágenes extraídas.
 | `resources/read` | Entrega una imagen para que un modelo multimodal pueda verla. |
 
 <div class="callout mt-6">En el Markdown, los enlaces a imágenes ya apuntan a <code>2md://images/…</code>. Si el cliente no admite recursos MCP, el modelo recibe el texto, pero no ve el diagrama.</div>
-
----
-
-# Preparación del servidor 2MD
-
-<div class="steps">
-  <div><span>1</span><p>Abre 2MD, elige el destino y habilita MCP local.</p></div>
-  <div><span>2</span><p>Configura el directorio permitido donde dejarás el documento de prueba.</p></div>
-  <div><span>3</span><p>Guarda la configuración y cierra 2MD si ya no necesitas la interfaz.</p></div>
-  <div><span>4</span><p>Conecta en el cliente el ejecutable <code>2MD-MCP.exe</code> de la distribución MCP.</p></div>
-</div>
-
-<div class="callout mt-5">Copia la distribución completa de MCP; el ejecutable no se distribuye como archivo independiente. Configura la ruta real de Windows en el cliente.</div>
 
 ---
 
@@ -390,17 +408,6 @@ advertencias y las imágenes extraídas.
 - `timeout.execution` va en milisegundos: 600000 son 10 minutos para documentos grandes.
 - Comprueba con `opencode mcp list` que **2md** aparece conectado y, en la sesión, que está la tool **`leer_documento`**.
 - La ruta del documento se resuelve respecto al directorio permitido si es relativa.
-
----
-
-# Por qué usar el MCP de 2MD
-
-<div class="grid grid-cols-2 gap-5 mt-8">
-  <div class="panel panel-cyan !min-h-0"><div class="number">01</div><h3>Totalmente local</h3><p>La conversión a Markdown se hace en tu equipo; el documento no se sube a ningún servicio para extraerlo.</p></div>
-  <div class="panel panel-violet !min-h-0"><div class="number">02</div><h3>Sin límite de tamaño ni de ficheros</h3><p>No hay tope de páginas, de megas ni de documentos por conversación.</p></div>
-  <div class="panel panel-lime !min-h-0"><div class="number">03</div><h3>Sin indexar</h3><p>A diferencia de AIOperator, no hace falta indexar antes: se pide el documento y se lee al momento.</p></div>
-  <div class="panel !min-h-0"><div class="number">04</div><h3>Ve las imágenes</h3><p>Con un modelo multimodal, el asistente puede interpretar las imágenes extraídas, por ejemplo un diagrama.</p></div>
-</div>
 
 ---
 
@@ -528,7 +535,32 @@ zoom: 0.85
 
 ---
 
-# Demo 3 · Buscar el vuelo más barato en Ryanair
+# Demo 3 · ¿Por qué tarda en cargar?
+
+**Prompt exacto:**
+
+```text
+Usando el mcp chrome devtools, analiza el rendimiento de carga de https://empresas.aena.es/empresas-home/ y dame la recomendación que más lo mejoraría, con los datos que la justifican
+```
+
+<div class="grid grid-cols-3 gap-5 mt-6">
+  <div class="panel panel-cyan !min-h-0"><div class="number">TOOLS</div><p>¿Graba una traza con <code>performance_start_trace</code> recargando la página? ¿Profundiza con <code>performance_analyze_insight</code>?</p></div>
+  <div class="panel panel-violet !min-h-0"><div class="number">CRITERIO</div><p>¿Cita métricas reales (LCP, CLS, TTFB) y el recurso culpable, o da consejos genéricos de «optimiza las imágenes»?</p></div>
+  <div class="panel panel-lime !min-h-0"><div class="number">VERIFICA</div><p>Graba tú la misma traza en el panel <strong>Performance</strong> de DevTools. ¿Coinciden las cifras y el diagnóstico?</p></div>
+</div>
+
+<style>
+pre, pre code { white-space: pre-wrap !important; word-break: break-word; }
+</style>
+
+<!--
+Pega el prompt tal cual. Aquí no hace falta interactuar con la página: el valor está en que el modelo lea la traza y la convierta en una recomendación priorizada.
+Las cifras varían con la red, la caché y la máquina: el resultado se valida repitiendo la traza en DevTools, no comparándolo con una solución fija.
+-->
+
+---
+
+# Demo 4 · Buscar el vuelo más barato en Ryanair
 
 **Prompt exacto:**
 
@@ -558,11 +590,11 @@ Los precios cambian: no hay solución fija, el resultado se valida mirando la pr
 zoom: 0.72
 ---
 
-# Demo 3 · Resultado
+# Demo 4 · Resultado
 
 <div class="grid grid-cols-2 gap-6 mt-2">
 <div>
-  <img src="/capturas/demo3-resultado.png" alt="Respuesta final del agente: 332 € para 2 adultos, del 19 al 26 de mayo de 2027, y las 7 opciones de mayo ordenadas por precio" style="max-height: 560px; width: auto; margin: 0 auto; border-radius: 0.5rem;">
+  <img src="/capturas/demo4-resultado.png" alt="Respuesta final del agente: 332 € para 2 adultos, del 19 al 26 de mayo de 2027, y las 7 opciones de mayo ordenadas por precio" style="max-height: 560px; width: auto; margin: 0 auto; border-radius: 0.5rem;">
 </div>
 <div>
 
@@ -585,7 +617,7 @@ zoom: 0.72
 
 ---
 
-# Demo 4 · Ahora sí hace falta mirar
+# Demo 5 · Ahora sí hace falta mirar
 
 **Prompt exacto:**
 
@@ -595,7 +627,7 @@ Usando el mcp chrome devtools, responde si o no, en esta url ves a un colega tuy
 
 <div class="grid grid-cols-2 gap-6 mt-4">
 <div>
-  <img src="/capturas/demo4-imgur.jpg" alt="La imagen del enlace: el endoesqueleto metálico de Terminator con un arma" style="max-height: 270px; width: auto; margin: 0 auto; border-radius: 0.5rem;">
+  <img src="/capturas/demo5-imgur.jpg" alt="La imagen del enlace: el endoesqueleto metálico de Terminator con un arma" style="max-height: 270px; width: auto; margin: 0 auto; border-radius: 0.5rem;">
 </div>
 <div>
 
@@ -606,7 +638,7 @@ Usando el mcp chrome devtools, responde si o no, en esta url ves a un colega tuy
 </div>
 </div>
 
-<div class="callout mt-4">Contraste con la demo 3: allí el árbol de accesibilidad bastaba. Aquí la respuesta solo está en los píxeles.</div>
+<div class="callout mt-4">Contraste con la demo 4: allí el árbol de accesibilidad bastaba. Aquí la respuesta solo está en los píxeles.</div>
 
 <style>
 pre, pre code { white-space: pre-wrap !important; word-break: break-word; }

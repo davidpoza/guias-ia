@@ -10,6 +10,7 @@
     "serve": "npx -y serve dist"
   },
   "devDependencies": {
-    "@slidev/cli": "^52.0.0"
+    "@slidev/cli": "^52.0.0",
+    "playwright-chromium": "^1.65.1"
   }
 }
