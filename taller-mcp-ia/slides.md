@@ -2,7 +2,7 @@
 theme: default
 title: "MCP en acción"
 subtitle: "Tres usos prácticos de la IA en el día a día"
-author: "Taller práctico"
+author: "David Poza Suárez"
 lang: es-ES
 highlighter: shiki
 lineNumbers: false
@@ -21,7 +21,7 @@ routerMode: hash
 
 **Diagramas editables · documentos a Markdown · visión artificial con Chrome**
 
-<div class="cover-footer">Una sesión para entenderlo, configurarlo y probarlo</div>
+<div class="cover-footer">Una sesión para entenderlo, configurarlo y probarlo · <strong>David Poza Suárez</strong></div>
 
 <!--
 Abre con la promesa: no es una charla sobre teoría de modelos. Vamos a conectar un asistente a tres capacidades concretas y a observar qué puede y qué no puede hacer.
@@ -351,6 +351,39 @@ Plan B si el servidor no responde: pide que use open_drawio_mermaid con el conte
 <div class="diagram"><img src="/diagramas/demo1.svg" alt="Flujo de solicitud de vacaciones en tres carriles: Empleado, Sistema y Responsable"></div>
 
 <p class="mt-5"><strong>Generado con el prompt exacto de la diapositiva anterior</strong> (<code>diagramas/demo1-prompt.md</code>) mediante <code>open_drawio_mermaid</code> + ELK. <strong>Comprobación:</strong> tres carriles, dos decisiones etiquetadas y el retorno al formulario.</p>
+
+---
+
+# Demo 1 · El mismo flujo en Mermaid
+
+<div class="diagram">
+
+```mermaid
+flowchart LR
+  subgraph EMP["Empleado"]
+    A["Rellena el formulario"]
+    F["Recibe la notificación"]
+  end
+  subgraph SIS["Sistema"]
+    B{"¿Datos completos?"}
+    C["Envía al responsable"]
+    N["Notifica el resultado"]
+  end
+  subgraph RES["Responsable"]
+    D{"¿Aprueba?"}
+  end
+  A --> B
+  B -->|"Incompleta"| A
+  B -->|"Completa"| C
+  C --> D
+  D -->|"Aprueba"| N
+  D -->|"Rechaza"| N
+  N --> F
+```
+
+</div>
+
+<p class="mt-5"><strong>El mismo flujo</strong> (<code>diagramas/demo1.mmd</code>) renderizado directamente por Mermaid, sin pasar por draw.io. <strong>Compara:</strong> Mermaid decide sola la posición de cada caja y no se puede retocar a mano; en draw.io el resultado es editable.</p>
 
 ---
 layout: section
