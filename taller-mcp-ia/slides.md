@@ -154,7 +154,7 @@ layout: section
 
 ---
 
-# El caso: un flujo que todo el equipo entienda
+# El caso: un diagrama de flujo
 
 <div class="grid grid-cols-2 gap-8 mt-8">
 <div>
@@ -419,8 +419,12 @@ layout: section
 <div class="callout mt-6">En el Markdown, los enlaces a imágenes ya apuntan a <code>2md://images/…</code>. Si el cliente no admite recursos MCP, el modelo recibe el texto, pero no ve el diagrama.</div>
 
 ---
+zoom: 0.9
+---
 
 # Configuración en OpenCode · `opencode.json`
+
+**Descarga:** [2MD v0.2.0 en GitHub](https://github.com/davidpoza/2md/releases/tag/v0.2.0). Descomprímelo y apunta `command` a `2MD-MCP.exe`.
 
 ```json
 {
@@ -573,7 +577,7 @@ zoom: 0.85
 **Prompt exacto:**
 
 ```text
-Usando el mcp chrome devtools, analiza el rendimiento de carga de https://empresas.aena.es/empresas-home/ y dame la recomendación que más lo mejoraría, con los datos que la justifican
+Usando el mcp chrome devtools, analiza el rendimiento de carga de https://www.ryanair.com/es/es y dame la recomendación que más lo mejoraría, con los datos que la justifican
 ```
 
 <div class="grid grid-cols-3 gap-5 mt-6">
@@ -589,6 +593,50 @@ pre, pre code { white-space: pre-wrap !important; word-break: break-word; }
 <!--
 Pega el prompt tal cual. Aquí no hace falta interactuar con la página: el valor está en que el modelo lea la traza y la convierta en una recomendación priorizada.
 Las cifras varían con la red, la caché y la máquina: el resultado se valida repitiendo la traza en DevTools, no comparándolo con una solución fija.
+-->
+
+---
+zoom: 0.66
+---
+
+# Demo 3 · Resultado
+
+<div class="grid grid-cols-2 gap-8 mt-2">
+<div>
+
+**Lo que midió la traza**
+
+| Métrica | Laboratorio | Usuarios reales (CrUX, p75) |
+| --- | --- | --- |
+| LCP | 2.174 ms | 2.162 ms |
+| · TTFB | 101 ms | 214 ms |
+| · **Retraso de carga** | **1.929 ms** | **1.845 ms** |
+| · Descarga | 11 ms | 30 ms |
+| · Retraso de render | 134 ms | 105 ms |
+| CLS | 0,00 | 0,04 |
+
+El elemento LCP es la imagen del banner de ofertas. **Se descarga en 7 ms, pero no se pide hasta los 2.030 ms.**
+
+</div>
+<div>
+
+**Recomendación: que el HTML anuncie la imagen del LCP**
+
+- La imagen no está en el HTML inicial: la inserta `main.….js` cuando ha descargado y ejecutado. El insight `LCPDiscovery` falla en «discoverable in initial document».
+- Casi el **90 % del LCP es espera**, no descarga. Ya tiene `fetchpriority=high` y no es *lazy*: el problema es solo cuándo se descubre.
+- Solución: renderizar la imagen en el servidor o añadir en el `<head>` un `<link rel="preload" as="image" fetchpriority="high">`. Ahorro potencial: cerca de 1,9 s de LCP.
+
+**Para comentar**
+
+- Usó `performance_start_trace` y profundizó con `performance_analyze_insight`.
+- Laboratorio y campo coinciden: no es un artefacto de la prueba.
+- Ruido secundario: 8 `preconnect` que no se usan (Hotjar, Demdex…).
+
+</div>
+</div>
+
+<!--
+Resultado de una ejecución real el 23 de noviembre de 2026, en un contexto de Chrome limpio y sin limitar red ni CPU. La imagen del banner cambia con cada campaña, pero el patrón (imagen inyectada por JavaScript) se repite.
 -->
 
 ---
